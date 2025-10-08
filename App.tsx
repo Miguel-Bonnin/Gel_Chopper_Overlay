@@ -6,25 +6,29 @@ import { exportToPng, exportToCsv } from './utils/export';
 
 const generateId = () => `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 
-const createNewGrid = (id: string): GridState => ({
-  id,
-  position: { x: 50, y: 50 },
-  size: { width: 800, height: 150 },
-  rows: 1,
-  columns: 18,
-  lineColor: '#00FFFF',
-  lineThickness: 1,
-  opacity: 0.7,
-  horizontalGaps: [],
-  verticalGaps: [],
-  showAnnotations: true,
-  annotationStyle: AnnotationStyle.COMB_34_WELL,
-  annotationSize: 12,
-  annotationColor: '#FFFFFF',
-  annotationPosition: AnnotationPosition.TOP_CENTER,
-  customAnnotations: {},
-  passFailState: {},
-});
+const createNewGrid = (id: string, combType: AnnotationStyle = AnnotationStyle.COMB_34_WELL): GridState => {
+  const columns = combType === AnnotationStyle.COMB_34_WELL ? 34 : combType === AnnotationStyle.COMB_17_WELL ? 18 : 18;
+
+  return {
+    id,
+    position: { x: 50, y: 50 },
+    size: { width: 800, height: 150 },
+    rows: 1,
+    columns,
+    lineColor: '#00FFFF',
+    lineThickness: 1,
+    opacity: 0.7,
+    horizontalGaps: [],
+    verticalGaps: [],
+    showAnnotations: true,
+    annotationStyle: combType,
+    annotationSize: 12,
+    annotationColor: '#FFFFFF',
+    annotationPosition: AnnotationPosition.TOP_CENTER,
+    customAnnotations: {},
+    passFailState: {},
+  };
+};
 
 const App: React.FC = () => {
   const [image, setImage] = useState<string | null>(null);
@@ -61,10 +65,10 @@ const App: React.FC = () => {
     exportToCsv(grids);
   }, [grids]);
 
-  const handleAddGrid = () => {
+  const handleAddGrid = (combType: AnnotationStyle) => {
     const newId = generateId();
     const lastGrid = grids[grids.length - 1];
-    const newGrid = createNewGrid(newId);
+    const newGrid = createNewGrid(newId, combType);
     if(lastGrid) {
         newGrid.position = { x: lastGrid.position.x + 20, y: lastGrid.position.y + 20 };
     }

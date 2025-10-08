@@ -6,7 +6,7 @@ interface ControlPanelProps {
   grids: GridState[];
   activeGrid: GridState | null;
   setActiveGridId: (id: string | null) => void;
-  onAddGrid: () => void;
+  onAddGrid: (combType: AnnotationStyle) => void;
   onDeleteGrid: () => void;
   setGridState: (updater: React.SetStateAction<GridState>) => void;
   onImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -39,6 +39,8 @@ const ControlPanel: React.FC<ControlPanelProps> = React.memo(({
   grids, activeGrid, setActiveGridId, onAddGrid, onDeleteGrid,
   setGridState, onImageUpload, onExport, onExportCsv, removeGap, resetGrid, onAddRow
 }) => {
+  const [selectedCombType, setSelectedCombType] = useState<AnnotationStyle>(AnnotationStyle.COMB_34_WELL);
+
   const handleGridChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     if (!activeGrid) return;
     const { name, value, type } = e.target;
@@ -51,7 +53,7 @@ const ControlPanel: React.FC<ControlPanelProps> = React.memo(({
     const { name, value } = e.target;
     setGridState(prev => ({ ...prev, [name]: value } as GridState));
   };
-  
+
   const isGridSelected = activeGrid !== null;
 
   return (
@@ -67,10 +69,28 @@ const ControlPanel: React.FC<ControlPanelProps> = React.memo(({
 
         <Section title="Manage Grids">
             <div className="mb-4">
+                <label htmlFor="combType" className="block text-sm font-medium mb-1">Comb Type for New Grid</label>
+                <select
+                    id="combType"
+                    value={selectedCombType}
+                    onChange={e => setSelectedCombType(e.target.value as AnnotationStyle)}
+                    className="w-full p-2 rounded bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600"
+                >
+                    <option value={AnnotationStyle.COMB_34_WELL}>34-Well Comb</option>
+                    <option value={AnnotationStyle.COMB_17_WELL}>17-Well Comb</option>
+                    <option value={AnnotationStyle.A1}>A1 Style</option>
+                    <option value={AnnotationStyle.NUMERIC}>Numeric</option>
+                    <option value={AnnotationStyle.NONE}>None</option>
+                </select>
+            </div>
+            <div className="mb-4">
+                <button onClick={() => onAddGrid(selectedCombType)} className="w-full bg-green-600 text-white font-bold py-2 px-4 rounded hover:bg-green-700 transition-colors">Add New Grid</button>
+            </div>
+            <div className="mb-4">
                 <label htmlFor="activeGrid" className="block text-sm font-medium mb-1">Selected Grid</label>
-                <select 
-                    id="activeGrid" 
-                    value={activeGrid?.id || ''} 
+                <select
+                    id="activeGrid"
+                    value={activeGrid?.id || ''}
                     onChange={e => setActiveGridId(e.target.value)}
                     className="w-full p-2 rounded bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600"
                 >
@@ -79,9 +99,8 @@ const ControlPanel: React.FC<ControlPanelProps> = React.memo(({
                     ))}
                 </select>
             </div>
-            <div className="flex gap-2">
-                <button onClick={onAddGrid} className="flex-1 bg-green-600 text-white font-bold py-2 px-4 rounded hover:bg-green-700 transition-colors">Add New Grid</button>
-                <button onClick={onDeleteGrid} disabled={grids.length <= 1} className="flex-1 bg-red-600 text-white font-bold py-2 px-4 rounded hover:bg-red-700 transition-colors disabled:bg-red-400 disabled:cursor-not-allowed">Delete Grid</button>
+            <div className="mb-4">
+                <button onClick={onDeleteGrid} disabled={grids.length <= 1} className="w-full bg-red-600 text-white font-bold py-2 px-4 rounded hover:bg-red-700 transition-colors disabled:bg-red-400 disabled:cursor-not-allowed">Delete Grid</button>
             </div>
         </Section>
 
