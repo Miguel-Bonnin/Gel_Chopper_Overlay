@@ -11,7 +11,7 @@ interface ControlPanelProps {
   setGridState: (updater: React.SetStateAction<GridState>) => void;
   onImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onExport: () => void;
-  onExportCsv: () => void;
+  onExportCsv: (format: 'sequential' | 'column-wise' | 'row-wise' | 'plate-format') => void;
   removeGap: (orientation: 'horizontal' | 'vertical', id: string) => void;
   resetGrid: () => void;
   onAddRow: () => void;
@@ -40,6 +40,7 @@ const ControlPanel: React.FC<ControlPanelProps> = React.memo(({
   setGridState, onImageUpload, onExport, onExportCsv, removeGap, resetGrid, onAddRow
 }) => {
   const [selectedCombType, setSelectedCombType] = useState<AnnotationStyle>(AnnotationStyle.COMB_34_WELL);
+  const [csvFormat, setCsvFormat] = useState<'sequential' | 'column-wise' | 'row-wise' | 'plate-format'>('sequential');
 
   const handleGridChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     if (!activeGrid) return;
@@ -196,9 +197,23 @@ const ControlPanel: React.FC<ControlPanelProps> = React.memo(({
             <button onClick={onExport} className="w-full bg-green-600 text-white font-bold py-2 px-4 rounded hover:bg-green-700 transition-colors">
                 Export as PNG
             </button>
-            <button onClick={onExportCsv} className="w-full bg-sky-600 text-white font-bold py-2 px-4 rounded hover:bg-sky-700 transition-colors">
-                Export as CSV
-            </button>
+            <div className="space-y-2">
+                <label htmlFor="csvFormat" className="block text-sm font-medium">CSV Export Format</label>
+                <select
+                    id="csvFormat"
+                    value={csvFormat}
+                    onChange={e => setCsvFormat(e.target.value as any)}
+                    className="w-full p-2 rounded bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600"
+                >
+                    <option value="sequential">Sequential (As shown)</option>
+                    <option value="column-wise">Column-wise (A1, B1, C1...)</option>
+                    <option value="row-wise">Row-wise (A1, A2, A3...)</option>
+                    <option value="plate-format">Plate Format (12x8 matrix)</option>
+                </select>
+                <button onClick={() => onExportCsv(csvFormat)} className="w-full bg-sky-600 text-white font-bold py-2 px-4 rounded hover:bg-sky-700 transition-colors">
+                    Export as CSV
+                </button>
+            </div>
         </div>
     </aside>
   );

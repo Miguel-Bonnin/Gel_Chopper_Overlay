@@ -2,7 +2,7 @@ import React, { useState, useCallback, useRef, useMemo } from 'react';
 import { GridState, AnnotationStyle, AnnotationPosition, Gap } from './types';
 import ControlPanel from './components/ControlPanel';
 import ImageWorkspace from './components/ImageWorkspace';
-import { exportToPng, exportToCsv } from './utils/export';
+import { exportToPng, exportToCsv, CsvExportFormat } from './utils/export';
 
 const generateId = () => `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 
@@ -61,8 +61,8 @@ const App: React.FC = () => {
     }
   }, [grids]);
   
-  const handleExportCsv = useCallback(() => {
-    exportToCsv(grids);
+  const handleExportCsv = useCallback((format: CsvExportFormat) => {
+    exportToCsv(grids, format);
   }, [grids]);
 
   const handleAddGrid = (combType: AnnotationStyle) => {

@@ -131,27 +131,107 @@ export const exportToPng = (imageElement: HTMLImageElement, grids: GridState[]) 
   link.click();
 };
 
-export const exportToCsv = (grids: GridState[]) => {
-  let csvContent = "Well,Status\n";
+export type CsvExportFormat = 'sequential' | 'column-wise' | 'row-wise' | 'plate-format';
+
+export const exportToCsv = (grids: GridState[], format: CsvExportFormat = 'sequential') => {
+  let csvContent = "";
   let totalRowsSoFar = 0;
-  
+
+  // Collect all well data
+  interface WellData {
+    annotation: string;
+    status: string;
+    row: number;
+    col: number;
+  }
+  const allWells: WellData[] = [];
+
   for (const grid of grids) {
     for (let r = 0; r < grid.rows; r++) {
       for (let c = 0; c < grid.columns; c++) {
         const annotation = generateAnnotation(r, c, grid.annotationStyle, grid.customAnnotations, { precedingRows: totalRowsSoFar, columns: grid.columns });
-        
+
         if (grid.annotationStyle === AnnotationStyle.NONE || annotation === '') continue;
 
         const key = `${r}-${c}`;
-        const isPass = grid.passFailState?.[key] ?? true; // Default to Pass
+        const isPass = grid.passFailState?.[key] ?? true;
         const status = isPass ? "Pass" : "Fail";
-        
-        csvContent += `"${annotation}",${status}\n`;
+
+        allWells.push({ annotation, status, row: r, col: c });
       }
     }
     totalRowsSoFar += grid.rows;
   }
-  
+
+  if (format === 'plate-format') {
+    // 12 x 8 matrix format (96-well plate style)
+    csvContent = ",1,2,3,4,5,6,7,8,9,10,11,12\n";
+    const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+
+    // Create a map for quick lookup
+    const wellMap = new Map<string, string>();
+    allWells.forEach(well => {
+      wellMap.set(well.annotation, well.status);
+    });
+
+    for (let row = 0; row < 8; row++) {
+      const rowLetter = letters[row];
+      csvContent += rowLetter;
+      for (let col = 1; col <= 12; col++) {
+        const wellName = `${rowLetter}${col}`;
+        const status = wellMap.get(wellName) || "";
+        csvContent += `,${status}`;
+      }
+      csvContent += "\n";
+    }
+  } else if (format === 'column-wise') {
+    csvContent = "Well,Status\n";
+    // Sort by letter first, then by number: A1, B1, C1... then A2, B2, C2...
+    const sorted = [...allWells].sort((a, b) => {
+      const aMatch = a.annotation.match(/([A-Z]+)(\d+)/);
+      const bMatch = b.annotation.match(/([A-Z]+)(\d+)/);
+
+      if (aMatch && bMatch) {
+        const [, aLetter, aNum] = aMatch;
+        const [, bLetter, bNum] = bMatch;
+
+        if (aNum !== bNum) return parseInt(aNum) - parseInt(bNum);
+        return aLetter.localeCompare(bLetter);
+      }
+      return a.annotation.localeCompare(b.annotation);
+    });
+
+    sorted.forEach(well => {
+      csvContent += `"${well.annotation}",${well.status}\n`;
+    });
+  } else if (format === 'row-wise') {
+    csvContent = "Well,Status\n";
+    // Sort by letter first, then by number: A1, A2, A3... then B1, B2, B3...
+    const sorted = [...allWells].sort((a, b) => {
+      const aMatch = a.annotation.match(/([A-Z]+)(\d+)/);
+      const bMatch = b.annotation.match(/([A-Z]+)(\d+)/);
+
+      if (aMatch && bMatch) {
+        const [, aLetter, aNum] = aMatch;
+        const [, bLetter, bNum] = bMatch;
+
+        if (aLetter !== bLetter) return aLetter.localeCompare(bLetter);
+        return parseInt(aNum) - parseInt(bNum);
+      }
+      return a.annotation.localeCompare(b.annotation);
+    });
+
+    sorted.forEach(well => {
+      csvContent += `"${well.annotation}",${well.status}\n`;
+    });
+  } else {
+    // Sequential (original order)
+    csvContent = "Well,Status\n";
+    allWells.forEach(well => {
+      csvContent += `"${well.annotation}",${well.status}\n`;
+    });
+  }
+
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   const link = document.createElement('a');
   const url = URL.createObjectURL(blob);
