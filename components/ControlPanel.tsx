@@ -17,8 +17,8 @@ interface ControlPanelProps {
   onAddRow: () => void;
 }
 
-const Section: React.FC<{ title: string; children: React.ReactNode; disabled?: boolean }> = ({ title, children, disabled = false }) => {
-  const [isOpen, setIsOpen] = useState(true);
+const Section: React.FC<{ title: string; children: React.ReactNode; disabled?: boolean; defaultOpen?: boolean }> = ({ title, children, disabled = false, defaultOpen = true }) => {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
   return (
     <fieldset className={`border border-gray-300 dark:border-gray-600 rounded-lg p-3 mb-4 transition-opacity ${disabled ? 'opacity-50 pointer-events-none' : ''}`}>
       <legend 
@@ -105,7 +105,7 @@ const ControlPanel: React.FC<ControlPanelProps> = React.memo(({
             </div>
         </Section>
 
-        <Section title="Grid Layout" disabled={!isGridSelected}>
+        <Section title="Grid Layout" disabled={!isGridSelected} defaultOpen={false}>
             <div className="grid grid-cols-2 gap-4">
                 <div>
                     <label htmlFor="rows" className="block text-sm font-medium">Rows</label>
@@ -125,8 +125,8 @@ const ControlPanel: React.FC<ControlPanelProps> = React.memo(({
                 </button>
             </div>
         </Section>
-        
-        <Section title="Grid Appearance" disabled={!isGridSelected}>
+
+        <Section title="Grid Appearance" disabled={!isGridSelected} defaultOpen={false}>
             <div className="mb-4">
                 <label htmlFor="lineColor" className="block text-sm font-medium">Line Color</label>
                 <input type="color" name="lineColor" id="lineColor" value={activeGrid?.lineColor || '#00FFFF'} onChange={handleColorChange} className="mt-1 w-full h-10 p-1 rounded bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600" />
@@ -140,8 +140,8 @@ const ControlPanel: React.FC<ControlPanelProps> = React.memo(({
                 <input type="range" name="opacity" id="opacity" min="0" max="1" step="0.05" value={activeGrid?.opacity || 0.7} onChange={handleGridChange} className="mt-1 w-full" />
             </div>
         </Section>
-        
-        <Section title="Gaps" disabled={!isGridSelected}>
+
+        <Section title="Gaps" disabled={!isGridSelected} defaultOpen={false}>
             <div className="mb-2">
                 <h4 className="font-semibold mb-2">Horizontal Gaps</h4>
                 {activeGrid?.horizontalGaps.length === 0 && <p className="text-xs text-gray-500">Click between rows on the image to add gaps.</p>}
@@ -163,8 +163,8 @@ const ControlPanel: React.FC<ControlPanelProps> = React.memo(({
                 ))}
             </div>
         </Section>
-        
-        <Section title="Annotations" disabled={!isGridSelected}>
+
+        <Section title="Annotations" disabled={!isGridSelected} defaultOpen={false}>
             <div className="flex items-center justify-between mb-4">
                 <label htmlFor="showAnnotations" className="block text-sm font-medium">Show Labels</label>
                 <input type="checkbox" name="showAnnotations" id="showAnnotations" checked={activeGrid?.showAnnotations || false} onChange={e => setGridState(p => ({ ...p, showAnnotations: e.target.checked }))} className="h-5 w-5 rounded text-blue-600 focus:ring-blue-500" />
