@@ -1,0 +1,6 @@
+{
+  "name": "Copy of Image Grid Overlay Tool",
+  "description": "A web-based tool to upload an image and overlay a customizable, resizable grid for scientific image analysis. Features include adjustable rows/columns, gaps, cell annotations, and export functionality.",
+  "requestFramePermissions": [],
+  "prompt": ""
+}
