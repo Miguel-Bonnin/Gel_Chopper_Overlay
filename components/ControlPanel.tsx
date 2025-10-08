@@ -151,7 +151,7 @@ const ControlPanel: React.FC<ControlPanelProps> = React.memo(({
             </div>
             {activeGrid?.showAnnotations && <>
                 <div className="mb-4">
-                    <label htmlFor="annotationStyle" className="block text-sm font-medium">Label Style</label>
+                    <label htmlFor="annotationStyle" className="block text-sm font-medium">Comb Used</label>
                     <select name="annotationStyle" id="annotationStyle" value={activeGrid?.annotationStyle} onChange={handleGridChange} className="mt-1 w-full p-2 rounded bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600">
                         {Object.values(AnnotationStyle).map(s => <option key={s} value={s}>{s}</option>)}
                     </select>

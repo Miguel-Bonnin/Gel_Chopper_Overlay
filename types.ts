@@ -5,7 +5,8 @@ export interface Gap {
 }
 
 export enum AnnotationStyle {
-  GEL = 'Gel',
+  COMB_34_WELL = '34-Well Comb',
+  COMB_17_WELL = '17-Well Comb',
   A1 = 'A1',
   NUMERIC = 'Numeric',
   NONE = 'None',

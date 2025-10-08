@@ -18,7 +18,7 @@ const createNewGrid = (id: string): GridState => ({
   horizontalGaps: [],
   verticalGaps: [],
   showAnnotations: true,
-  annotationStyle: AnnotationStyle.GEL,
+  annotationStyle: AnnotationStyle.COMB_34_WELL,
   annotationSize: 12,
   annotationColor: '#FFFFFF',
   annotationPosition: AnnotationPosition.TOP_CENTER,
